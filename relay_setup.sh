@@ -60,6 +60,7 @@ apt install tor deb.torproject.org-keyring nyx -y
 #Configure tor relay
 echo -e "${YELLOW}\n[+] Configuring Relay\n${RESET}"
 
+#Ask the user to supply the parameters we are going to use during the configuration process
 while [[ -z $nickname ]]; do
   read -p "[?] Enter a Nickname for your relay: " nickname
 done
@@ -86,10 +87,15 @@ cat <<EOF > /etc/tor/torrc
     SocksPort 0
     ControlPort 9051
     HashedControlPassword $hashed_password
+    ExcludeNodes {ir},{sy},{kp}
+    BandwidthRate 10 MB
+    BandwidthBurst 50 MB
 EOF
 
 #Restart tor service
 systemctl restart tor@default
 
-echo -e "${GREEN}\n[V] Relay installation completed successfully\n"
+echo -e "${GREEN}\n[V] Relay installation completed successfully"
 echo -e "${GREEN}\n[i] Remember to enable TCP/UDP access over the port $ORPort in your firewall${RESET}"
+echo -e "${YELLOW}\n[i] Your rellay will be listed (in > 2h aprox) at:${RESET}\n\n https://metrics.torproject.org/rs.html#search/$nickname."
+echo -e "${YELLOW}\n[i] Meanwhile you can monitor your relay by using the ${RESET}nyx${YELLOW} command and your${RESET} password\n"
